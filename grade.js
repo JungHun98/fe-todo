@@ -1,3 +1,9 @@
+/** 
+ * @todo
+ * 조건 검사 함수로 바꾸기, 주석 작성하기
+ * 
+ */ 
+ 
 let todosArr = require('./todo.js').todos;
 const readline = require("readline");
 const rl = readline.createInterface({
@@ -11,10 +17,17 @@ const statusCount = {
     done: 0
 }
 
+/** 
+ * todo list의 모든 상태 출력
+*/
 const showAll = function() {
     console.log(`현재상태 : todo: ${statusCount.todo}개, doing: ${statusCount.doing}개, done: ${statusCount.done}개`);
 }
 
+/**
+ * todo list에서 선택한 상태의 모든 요소 출력 
+ * @param {String} type 출력할 상태 
+ */
 const showType = function(type) {
     if(type !== "todo" && type !== "doing" && type !== "done") {
         console.log("invalid command");
@@ -26,7 +39,7 @@ const showType = function(type) {
     }
     else {
         let result = `${type}리스트 : 총 ${statusCount[type]}건 :`;
-        let items = [];
+        const items = [];
 
         todosArr.forEach(item => {
             if(item.status === type) items.push(` '${item.name}, ${item.id}번'`);
@@ -36,21 +49,36 @@ const showType = function(type) {
     }
 }
 
+/**
+ * 사용자가 입력한 show 명령문 처리
+ * @param {Array} optionArr string[]
+ */
 const showItem = function(optionArr) {
     if(optionArr.length > 1) {
         console.log("invalid command");
         return;
     }
 
-    if(optionArr[0] === "all") showAll();
-    else showType(optionArr[0]);
+    const showOption = optionArr[0];
+
+    if(showOption === "all") showAll();
+    else showType(showOption);
 }
 
+/**
+ * str이 배열 형태의 문자열인지 판별
+ * @param {String} str 사용자가 입력한 TagList
+ * @returns {boolean}
+ */
 const isArrayString = function (str) {
     const regex = /\["([^"]+)"(?:,\s*"([^"]+)")*\]/;
     return regex.test(str);
 }
 
+/**
+ * 무작위로 고유한 id 생성
+ * @returns {Number} id
+ */
 const getId = function (){
     let id;
     do{
@@ -60,43 +88,52 @@ const getId = function (){
     return id;
 }
 
+/**
+ * 사용자가 입력한 add 명령문 처리
+ * @param {Array} optionArr string[]
+ */
 const addItem = function(optionArr){
     if(optionArr.length !== 2){
         console.log("invalid command");
         return;
     }
 
-    if(!isArrayString(optionArr[1])) {
+    const [additionalName, additionalTag] = optionArr;
+
+    if(!isArrayString(additionalTag)) {
         console.log("invalid command");
         return;
     }
     
     let newId = getId();
     todosArr.push({
-        name: optionArr[0],
-        tags: JSON.parse(optionArr[1]),
+        name: additionalName,
+        tags: JSON.parse(additionalTag),
         status: "todo",
         id: newId
     });
 
     statusCount.todo++;
-    console.log(`${optionArr[0]} 1개가 추가되었습니다.(id: ${newId})`)
+    console.log(`${additionalName} 1개가 추가되었습니다.(id: ${newId})`)
     showAll();
 }
 
+/**
+ * 사용자가 입력한 update 명령문 처리
+ * @param {Array} optionArr string[]
+ */
 const deleteItme = function(optionArr){
     if(optionArr.length > 1) {
         console.log("invalid command");
         return;
     }
-
-    let id = Number(optionArr[0]);
+    const deleteTargetId = Number(optionArr[0]); 
     let target = undefined;
     
     todosArr = todosArr.filter(item => {
-        if(item.id === id) target = item;
+        if(item.id === deleteTargetId) target = item;
 
-        return item.id !== id;
+        return item.id !== deleteTargetId;
     })
     
     if(target){
@@ -109,18 +146,24 @@ const deleteItme = function(optionArr){
     }    
 }
 
+/**
+ * 사용자가 입력한 update 명령문 처리
+ * @param {Array} optionArr string[]
+ */
 const updateItem = function(optionArr) {
     if(optionArr.length !== 2) {
         console.log("invalid command");
         return;
     }
 
+    const [updateTargetId, updateTargetStatus] = optionArr;
+
     todosArr = todosArr.map(item => {
-        if(item.id === Number(optionArr[0])) {
+        if(item.id === Number(updateTargetId)) {
             statusCount[item.status]--;
-            statusCount[optionArr[1]]++;
-            console.log(`${item.name} ${optionArr[1]}으로 상태가 변경되었습니다.`);
-            return {...item, status: optionArr[1]};
+            statusCount[updateTargetStatus]++;
+            console.log(`${item.name} ${updateTargetStatus}으로 상태가 변경되었습니다.`);
+            return {...item, status: updateTargetStatus};
         }
         else return item;
     });
@@ -128,6 +171,10 @@ const updateItem = function(optionArr) {
     showAll();
 }
 
+/**
+ * 사용자가 입력한 명령어 처리
+ * @param {String} line 명령문
+ */
 const excute = function(line){
     const cmdArr = line.split('$'); 
     const command = cmdArr[0];
