@@ -1,4 +1,4 @@
-const todosArr = require('./todo.js').todos;
+let todosArr = require('./todo.js').todos;
 const readline = require("readline");
 const rl = readline.createInterface({
     input: process.stdin,
@@ -21,20 +21,22 @@ const showType = function(type) {
         return;
     }
 
-    if(statusCount[type] === 0) console.log(type + "리스트 : 총 0건");
+    if(statusCount[type] === 0) {
+        console.log(type + "리스트 : 총 0건");
+    }
     else {
         let result = `${type}리스트 : 총 ${statusCount[type]}건 :`;
         let items = [];
 
         todosArr.forEach(item => {
             if(item.status === type) items.push(` '${item.name}, ${item.id}번'`);
-        })
+        });
 
         console.log(result + items.join(','));
     }
 }
 
-const show = function(optionArr) {
+const showItem = function(optionArr) {
     if(optionArr.length > 1) {
         console.log("invalid command");
         return;
@@ -53,12 +55,12 @@ const getId = function (){
     let id;
     do{
         id = Math.ceil(Math.random() * 1000);
-    }while(todosArr.some(item => item.id === id))
+    }while(todosArr.some(item => item.id === id)) 
 
     return id;
 }
 
-const add = function(optionArr){
+const addItem = function(optionArr){
     if(optionArr.length !== 2){
         console.log("invalid command");
         return;
@@ -82,15 +84,59 @@ const add = function(optionArr){
     showAll();
 }
 
-const excute = function(line){
-    const cmdArr = line.split('$');
-    
-    const command = cmdArr[0];
+const deleteItme = function(optionArr){
+    if(optionArr.length > 1) {
+        console.log("invalid command");
+        return;
+    }
 
-    if(command === 'show') show(cmdArr.slice(1)); // show() 
-    else if(command === 'add') add(cmdArr.slice(1)) // add()
-    else if(command === 'delete') console.log('delete') // delete()
-    else if(command === 'update') console.log('update') // update()
+    let id = Number(optionArr[0]);
+    let target = undefined;
+    
+    todosArr = todosArr.filter(item => {
+        if(item.id === id) target = item;
+
+        return item.id !== id;
+    })
+    
+    if(target){
+        statusCount[target.status]--;
+        console.log(`${target.name} ${target.status} 목록에서 삭제됐습니다`);
+        showAll();
+    }
+    else{
+        console.log("invalid id");
+    }    
+}
+
+const updateItem = function(optionArr) {
+    if(optionArr.length !== 2) {
+        console.log("invalid command");
+        return;
+    }
+
+    todosArr = todosArr.map(item => {
+        if(item.id === Number(optionArr[0])) {
+            statusCount[item.status]--;
+            statusCount[optionArr[1]]++;
+            console.log(`${item.name} ${optionArr[1]}으로 상태가 변경되었습니다.`);
+            return {...item, status: optionArr[1]};
+        }
+        else return item;
+    });
+
+    showAll();
+}
+
+const excute = function(line){
+    const cmdArr = line.split('$'); 
+    const command = cmdArr[0];
+    const commandOptionArr = cmdArr.slice(1);
+
+    if(command === 'show') showItem(commandOptionArr); // show() 
+    else if(command === 'add') addItem(commandOptionArr) // add()
+    else if(command === 'delete') deleteItme(commandOptionArr) // delete()
+    else if(command === 'update') updateItem(commandOptionArr) // update()
     else rl.close();
 };
 
