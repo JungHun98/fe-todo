@@ -1,6 +1,14 @@
-/**
- * 할일 목록 배열
- */
+/* 
+
+할일 목록 배열
+
+(property) todos: {
+    name: string;
+    tags: string[];
+    status: string;
+    id: number;
+}[]
+*/
 exports.todos =  [ 
 {
 	'name' : '자바스크립트 공부하기', 
