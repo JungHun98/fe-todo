@@ -12,8 +12,10 @@ import { updateItem } from './update.js';
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-    prompt: '명령하세요 : '
 });
+
+rl.setPrompt('명령하세요 : ');
+rl.prompt()
 
 /**
  * 사용자가 입력한 명령어 처리
@@ -33,7 +35,7 @@ const excute = function(line){
 
 rl.on("line", function(line){
     excute(line);
-
+    rl.prompt();
     // rl.close();
 })
 .on("close", function(){
