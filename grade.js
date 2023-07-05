@@ -1,14 +1,19 @@
 /** 
  * @todo
- * 조건 검사 함수로 바꾸기, 주석 작성하기
+ * 주석 작성하기
  * 
  */ 
- 
-let todosArr = require('./todo.js').todos;
-const readline = require("readline");
+import readline from  "readline"
+import todosArr from './todo.js'
+
+const ZERO = 0
+const SINGLE_ITEM_LENGTH = 1;
+const DOUBLE_ITEM_LENGTH = 2;
+
 const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+    prompt: '명령하세요 : '
 });
 
 const statusCount = {
@@ -25,16 +30,36 @@ const showAll = function() {
 }
 
 /**
+ * 유효한 show 명령 옵션인지 판별
+ * @param {String} type show명령 옵션
+ * @returns {boolean}
+ */
+const isValidShowType = function (type){
+    return type === "todo" || type === "doing" || type === "done" 
+}
+
+/**
+ * 
+ * @param {String[]} optionArr 
+ * @param {String} cmdType 
+ * @returns {boolean}
+ */
+const isValidCommand = function(optionArr, cmdType){
+    if(cmdType === 'show' || cmdType === 'delete') return optionArr.length === SINGLE_ITEM_LENGTH  
+    else if(cmdType === 'add' || cmdType === 'update') return optionArr.length === DOUBLE_ITEM_LENGTH 
+}
+
+/**
  * todo list에서 선택한 상태의 모든 요소 출력 
  * @param {String} type 출력할 상태 
  */
 const showType = function(type) {
-    if(type !== "todo" && type !== "doing" && type !== "done") {
+    if(isValidShowType(type)) {
         console.log("invalid command");
         return;
     }
 
-    if(statusCount[type] === 0) {
+    if(statusCount[type] === ZERO) {
         console.log(type + "리스트 : 총 0건");
     }
     else {
@@ -54,7 +79,7 @@ const showType = function(type) {
  * @param {Array} optionArr string[]
  */
 const showItem = function(optionArr) {
-    if(optionArr.length > 1) {
+    if(!isValidCommand(optionArr, "show")) {
         console.log("invalid command");
         return;
     }
@@ -80,10 +105,11 @@ const isArrayString = function (str) {
  * @returns {Number} id
  */
 const getId = function (){
-    let id;
-    do{
-        id = Math.ceil(Math.random() * 1000);
-    }while(todosArr.some(item => item.id === id)) 
+    let id = Math.ceil(Math.random() * 1000);
+    
+    while(todosArr.some(item => item.id === id)){
+        id++; 
+    }
 
     return id;
 }
@@ -93,7 +119,7 @@ const getId = function (){
  * @param {Array} optionArr string[]
  */
 const addItem = function(optionArr){
-    if(optionArr.length !== 2){
+    if(!isValidCommand(optionArr, "add")){
         console.log("invalid command");
         return;
     }
@@ -123,7 +149,7 @@ const addItem = function(optionArr){
  * @param {Array} optionArr string[]
  */
 const deleteItme = function(optionArr){
-    if(optionArr.length > 1) {
+    if(!isValidCommand(optionArr, "delete")) {
         console.log("invalid command");
         return;
     }
@@ -151,7 +177,7 @@ const deleteItme = function(optionArr){
  * @param {Array} optionArr string[]
  */
 const updateItem = function(optionArr) {
-    if(optionArr.length !== 2) {
+    if(!isValidCommand(optionArr, "update")) {
         console.log("invalid command");
         return;
     }

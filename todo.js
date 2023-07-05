@@ -9,7 +9,7 @@
     id: number;
 }[]
 */
-exports.todos =  [ 
+let todosArr =  [ 
 {
 	'name' : '자바스크립트 공부하기', 
 	'tags' : ['programming', 'javascript'],
@@ -29,3 +29,5 @@ exports.todos =  [
 	'id' : 312323
 }
 ];
+
+export default todosArr
